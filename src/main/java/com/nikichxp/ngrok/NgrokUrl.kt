@@ -6,10 +6,18 @@ import java.lang.Exception
 class NgrokUrl {
 
     private var executableLocation: String? = null
-    val ngrokAddress: String? by lazy {
-        tryLaunch()
-        loadNgrokAddr()
-    }
+    var ngrokAddress: String? = null
+        get() {
+            if (field != null) {
+                return field
+            }
+            val ret = loadNgrokAddr()
+            if (ret != null) {
+                field = ret
+            }
+            return ret
+        }
+    
     private var process: Process? = null
 
     fun location(location: String) = apply {
@@ -28,7 +36,7 @@ class NgrokUrl {
         null
     }
 
-    fun tryLaunch(): String? = executableLocation?.let {
+    fun tryLaunch(port: Int): String? = executableLocation?.let {
         if (loadNgrokAddr() == null) {
             val builder = ProcessBuilder(
                     if (it.startsWith('~')) {
@@ -37,11 +45,11 @@ class NgrokUrl {
                         it
                     }.let {
                         if (it.endsWith('/')) {
-                            it + "/ngrok"
+                            "$it/ngrok"
                         } else {
                             it
                         }
-                    }, "http", "8080")
+                    }, "http", port.toString())
             builder.redirectErrorStream(true)
             process = builder.start()
         }
@@ -59,3 +67,4 @@ class NgrokUrl {
         process?.destroy()
     }
 }
+
