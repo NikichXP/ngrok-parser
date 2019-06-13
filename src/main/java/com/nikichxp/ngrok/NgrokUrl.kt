@@ -5,6 +5,13 @@ import java.lang.Exception
 
 class NgrokUrl {
 
+    constructor() : this(4040)
+
+    constructor(port: Int) {
+        ngrokInfoPort = port
+    }
+
+    private var ngrokInfoPort = 4040
     private var executableLocation: String? = null
     var ngrokAddress: String? = null
         get() {
@@ -17,7 +24,7 @@ class NgrokUrl {
             }
             return ret
         }
-    
+
     private var process: Process? = null
 
     fun location(location: String) = apply {
@@ -25,7 +32,7 @@ class NgrokUrl {
     }
 
     private fun loadNgrokAddr(): String? = try {
-        Unirest.get("http://localhost:4040/api/tunnels")
+        Unirest.get("http://localhost:$ngrokInfoPort/api/tunnels")
                 .asJson().body.`object`
                 .getJSONArray("tunnels")
                 .getJSONObject(0)
